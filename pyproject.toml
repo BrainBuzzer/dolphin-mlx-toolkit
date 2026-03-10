@@ -1,7 +1,7 @@
 [project]
 name = "dolphin-mlx-toolkit"
 version = "0.1.0"
-description = "MLX conversion and guarded publication toolkit for ByteDance/Dolphin-v2"
+description = "MLX conversion toolkit and local PDF parser for ByteDance/Dolphin-v2"
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -11,6 +11,8 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "huggingface_hub>=1.6.0",
     "mlx-vlm[torch]>=0.3.0",
+    "numpy>=2.3.0",
+    "pymupdf>=1.26.0",
     "streamlit>=1.45.0",
     "typer>=0.16.0",
 ]

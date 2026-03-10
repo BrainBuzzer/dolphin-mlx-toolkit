@@ -1,13 +1,14 @@
 # Dolphin MLX Toolkit
 
-Open-source tooling to convert `ByteDance/Dolphin-v2` into an MLX-friendly bundle for Apple Silicon, with a Streamlit UI and conservative compliance artifacts for derivative weight publication.
+Open-source tooling to convert `ByteDance/Dolphin-v2` into an MLX-friendly bundle for Apple Silicon and run local PDF-to-markdown parsing with a Streamlit UI.
 
 ## Scope
 
 - Converts the upstream Hugging Face model to MLX by delegating to `mlx_vlm.convert`.
+- Parses PDFs locally with Dolphin-v2-MLX and assembles markdown output.
+- Embeds extracted figures as inline data URIs so downloaded markdown stays standalone.
 - Generates `NOTICE`, upstream license copies, a publishing checklist, and a derivative model card.
-- Previews Hugging Face CLI publication commands.
-- Blocks actual Hugging Face publishing unless you explicitly provide a confirmation string.
+- Keeps Hugging Face publication as an explicit CLI-only step.
 
 ## Important License Distinction
 
@@ -23,7 +24,7 @@ The upstream Dolphin repository focuses on PyTorch / Transformers inference. Thi
 
 - MLX conversion on macOS
 - reproducible `uv` workflows
-- a simple Streamlit UI
+- a simple Streamlit PDF parser UI
 - safer pre-publication checks before any Hugging Face upload
 
 ## Quickstart
@@ -58,6 +59,15 @@ uv run dolphin-mlx-toolkit convert \
   --output-dir artifacts/dolphin-v2-mlx
 ```
 
+Parse a PDF with a local MLX model:
+
+```bash
+uv run dolphin-mlx-toolkit parse \
+  --input-pdf test_assets/agent-lightning-rl.pdf \
+  --model-dir artifacts/dolphin-v2-mlx-4bit \
+  --output-dir artifacts/parsed
+```
+
 Preview Hugging Face CLI commands:
 
 ```bash
@@ -80,11 +90,17 @@ uv run streamlit run src/dolphin_mlx_toolkit/app.py
 
 The UI lets you:
 
-- preview the exact `mlx_vlm.convert` command
-- generate compliance files before conversion
-- run the conversion locally
-- preview the Hugging Face CLI commands without pushing
+- upload a PDF
+- choose the local MLX model directory
+- run the two-stage Dolphin parsing pipeline locally
+- preview and download the generated markdown and JSON outputs
 
 ## Notes On Fidelity
 
-Converting the weights to MLX is only part of the work. Dolphin's full behavior also depends on its two-stage orchestration and post-processing pipeline in the upstream repo. This toolkit currently focuses on the model conversion and compliant publication workflow, not a full parity reimplementation of every PyTorch inference utility.
+This repo ports the main two-stage document parsing flow from the upstream Dolphin project:
+
+- page-level reading order detection
+- element-level OCR / table / formula / code parsing
+- markdown assembly with multi-page separators
+
+The markdown quality still depends on the underlying model outputs. This toolkit does not yet add extra corrective heuristics beyond the upstream-style orchestration.

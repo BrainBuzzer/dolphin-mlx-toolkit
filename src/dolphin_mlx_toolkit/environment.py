@@ -14,6 +14,7 @@ class EnvironmentReport:
     gh_installed: bool
     hf_cli_installed: bool
     mlx_vlm_installed: bool
+    pymupdf_installed: bool
 
     def to_markdown(self) -> str:
         return "\n".join(
@@ -25,6 +26,7 @@ class EnvironmentReport:
                 f"- gh installed: `{self.gh_installed}`",
                 f"- hf CLI installed: `{self.hf_cli_installed}`",
                 f"- mlx-vlm importable: `{self.mlx_vlm_installed}`",
+                f"- PyMuPDF importable: `{self.pymupdf_installed}`",
             ]
         )
 
@@ -50,6 +52,12 @@ def _mlx_vlm_importable() -> bool:
     return result.returncode == 0
 
 
+def _pymupdf_importable() -> bool:
+    command = [sys.executable, "-c", "import pymupdf"]
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    return result.returncode == 0
+
+
 def get_environment_report() -> EnvironmentReport:
     return EnvironmentReport(
         python=sys.version.split()[0],
@@ -58,4 +66,5 @@ def get_environment_report() -> EnvironmentReport:
         gh_installed=_command_exists("gh"),
         hf_cli_installed=_command_exists("hf") or _module_cli_available(),
         mlx_vlm_installed=_mlx_vlm_importable(),
+        pymupdf_installed=_pymupdf_importable(),
     )

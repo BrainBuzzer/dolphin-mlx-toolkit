@@ -7,10 +7,11 @@ import typer
 
 from .conversion import ConversionOptions, prepare_conversion_bundle, run_conversion
 from .hf_publish import PublishOptions, preview_publish_commands, run_publish
+from .parser import DolphinMLXDocumentParser, write_document_result
 
 app = typer.Typer(
     no_args_is_help=True,
-    help="Convert ByteDance/Dolphin-v2 into MLX format with license-compliant artifacts.",
+    help="Convert ByteDance/Dolphin-v2 into MLX format and parse PDFs locally.",
 )
 
 
@@ -101,6 +102,40 @@ def prepare_bundle(
     )
     bundle = prepare_conversion_bundle(options)
     typer.echo(bundle.to_markdown())
+
+
+@app.command("parse")
+def parse(
+    input_pdf: Path = typer.Option(..., exists=True, dir_okay=False, help="PDF to parse."),
+    model_dir: Path = typer.Option(
+        Path("artifacts/dolphin-v2-mlx-4bit"),
+        exists=True,
+        file_okay=False,
+        help="Directory containing the converted Dolphin-v2 MLX model.",
+    ),
+    output_dir: Path = typer.Option(
+        Path("artifacts/parsed"),
+        help="Directory where markdown and JSON outputs will be written.",
+    ),
+    max_pages: int = typer.Option(0, min=0, help="Use 0 to parse the full PDF."),
+    layout_max_tokens: int = typer.Option(2048, min=256, max=4096),
+    element_max_tokens: int = typer.Option(1024, min=128, max=4096),
+    temperature: float = typer.Option(0.0, min=0.0, max=1.0),
+) -> None:
+    """Parse a PDF with the local MLX model and write markdown plus JSON outputs."""
+    parser = DolphinMLXDocumentParser(
+        model_dir,
+        layout_max_tokens=layout_max_tokens,
+        default_element_max_tokens=element_max_tokens,
+        temperature=temperature,
+    )
+    result = parser.parse_pdf_path(
+        input_pdf,
+        max_pages=None if max_pages == 0 else max_pages,
+    )
+    saved = write_document_result(result, output_dir)
+    typer.echo(f"Markdown written to {saved.markdown_path}")
+    typer.echo(f"JSON written to {saved.json_path}")
 
 
 @app.command("preview-publish")
