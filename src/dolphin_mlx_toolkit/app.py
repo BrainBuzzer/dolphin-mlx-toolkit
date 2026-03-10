@@ -1,4 +1,4 @@
-from .streamlit_app import main
+from dolphin_mlx_toolkit.streamlit_app import main
 
 
 if __name__ == "__main__":

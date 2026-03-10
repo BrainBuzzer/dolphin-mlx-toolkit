@@ -13,3 +13,5 @@ wheels/
 artifacts/
 .streamlit/
 *.log
+hf_model/
+test_assets/
