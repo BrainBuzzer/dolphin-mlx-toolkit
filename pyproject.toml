@@ -1,0 +1,28 @@
+[project]
+name = "dolphin-mlx-toolkit"
+version = "0.1.0"
+description = "MLX conversion and guarded publication toolkit for ByteDance/Dolphin-v2"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Aditya Giri", email = "dtrg21@gmail.com" }
+]
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "huggingface_hub>=1.6.0",
+    "mlx-vlm[torch]>=0.3.0",
+    "streamlit>=1.45.0",
+    "typer>=0.16.0",
+]
+
+[project.scripts]
+dolphin-mlx-toolkit = "dolphin_mlx_toolkit:main"
+
+[build-system]
+requires = ["uv_build>=0.9.3,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.0",
+]
